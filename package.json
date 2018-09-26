@@ -1,18 +1,20 @@
 {
   "name": "@kuali/a-few-good-deps",
   "version": "0.0.1",
-  "description":
-    "Provides an express middleware to setup a health integrity check endpoint according to spec",
+  "description": "Provides an express middleware to setup a health integrity check endpoint according to spec",
   "main": "src/index.js",
   "types": "lib/a-few-good-deps.d.ts",
   "repository": "https://wiki.kuali.co/dev/integrity_health_check",
   "author": "BJ Neilsen <bj@kuali.co>",
   "license": "MIT",
   "private": true,
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "devDependencies": {
     "@types/bluebird": "^3.5.24",
     "@types/jest": "^23.3.2",
+    "@types/ramda": "^0.25.38",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.2",
     "tslint": "^5.11.0",
@@ -20,7 +22,8 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "bluebird": "^3.5.2"
+    "bluebird": "^3.5.2",
+    "ramda": "^0.25.0"
   },
   "peerDependencies": {
     "express": ">=3.0.0"
