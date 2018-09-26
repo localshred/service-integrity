@@ -12,10 +12,13 @@
   "files": ["lib"],
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf lib/*"
+    "clean": "rm -rf lib/*",
+    "lint": "tslint-config-prettier-check ./tslint.json"
   },
   "devDependencies": {
     "jest": "^23.6.0",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.3"
   }
 }
