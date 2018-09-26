@@ -1,0 +1,32 @@
+{
+  "*": {
+    "make": "yarn test",
+    "dispatch": "yarn test"
+  },
+
+  "src/*.ts": {
+    "alternate": "test/{}.test.ts",
+    "type": "src"
+  },
+
+  "test/unit/*.test.js": {
+    "type": "test",
+    "alternate": "{}.js",
+    "make": "yarn jest --no-color {file}",
+    "dispatch": "yarn jest --no-color {file}",
+    "template": [
+      "/* eslint-env jest */",
+      "",
+      "import {basename|camelcase} = require('{}')",
+      "",
+      "describe('{}', () => {",
+      "  describe('default', () => {",
+      "    it('does a thing', () => {",
+      "      expect('You should add a test here').toBe('please')",
+      "    })",
+      "  })",
+      "})"
+    ]
+  }
+}
+
