@@ -1,10 +1,9 @@
 /* eslint-env jest */
 
 import Bluebird = require('bluebird')
-import { ServiceState } from '../src/status'
+import { IServiceState, ServiceState } from '../src/status'
 import {
   IServiceResult,
-  IServiceState,
   selectOverallStatus,
   verifyServiceIntegrity
 } from '../src/verify-service-integrity'

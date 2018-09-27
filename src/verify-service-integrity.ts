@@ -1,14 +1,14 @@
 import Bluebird = require('bluebird')
 import R = require('ramda')
-import { selectCriticalPriority, ServiceState } from './status'
+import {
+  error as statusError,
+  IServiceState,
+  selectCriticalPriority,
+  ServiceState
+} from './status'
 
 export interface IMiddlewareOptions {
   services: IUnresolvedServices
-}
-
-export interface IServiceState {
-  status: ServiceState
-  message?: string
 }
 
 export interface IUnresolvedServices {
@@ -37,10 +37,8 @@ export const processResolvedServices = (
     services: R.identity
   })(services)
 
-export const exceptionToErrorStatus = (error: Error): IServiceState => ({
-  message: error.message,
-  status: 'ERROR'
-})
+export const exceptionToErrorStatus = (error: Error): IServiceState =>
+  statusError(error.message)
 
 const mergeProp = R.curry(
   (

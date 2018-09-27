@@ -12,7 +12,7 @@ What's a dependent service? Any major technology or backend that your app relies
 The heart of this package is the `createHealthCheck` function which accepts two arguments:
 
 * Your express app, ready for some `use`ing.
-* A map of services you wish to report on. The services should be keyed by a string of your choosing with the value being a resolvable promise which should return a service status object. Checkout [src/status.ts](src/status.ts) for type signatures, or better yet just use the built-in status returning functions: `report.ok`, `report.warn`, or `report.error`. Each can take an optional string message which will be available in any downtime notifications helping us get to the root of the problem quicker.
+* A map of services you wish to report on. The services should be keyed by a string of your choosing with the value being a resolvable promise which should return a service status object. Checkout [src/status.ts](src/status.ts) for type signatures, or better yet just use the built-in status returning functions: `status.ok`, `status.warn`, or `status.error`. Each can take an optional string message which will be available in any downtime notifications helping us get to the root of the problem quicker.
 
 ## Documentation
 
@@ -28,7 +28,7 @@ yarn add @kuali/a-few-good-deps
 
 ```javascript
 const express = require('express')
-const { createHealthCheck, report } = require('@kuali/a-few-good-deps')
+const { createHealthCheck, status } = require('@kuali/a-few-good-deps')
 const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = () =>
@@ -36,11 +36,11 @@ const verifyMysqlIntegrity = () =>
     .then(connection => connection.query('SELECT count(id) FROM mytable'))
     .then(result => {
       if (result.count > 0) {
-        return report.ok() // Report that everything with MySQL is OK
+        return status.ok() // Report that everything with MySQL is OK
       }
-      return report.warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
+      return status.warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
     })
-    .catch(error => report.error(error.message)) // Report MySQL is down
+    .catch(error => status.error(error.message)) // Report MySQL is down
 
 const app = express()
 
@@ -64,11 +64,11 @@ const verifyMysqlIntegrity = async () => {
   try {
     const result = await connection.query('SELECT count(id) FROM mytable'))
     if (result.count > 0) {
-      return report.ok() // Report that everything with MySQL is OK
+      return status.ok() // Report that everything with MySQL is OK
     }
-    return report.warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
+    return status.warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
   } catch (error) {
-    return report.error(error.message)) // Report MySQL is down
+    return status.error(error.message)) // Report MySQL is down
   }
 }
 
