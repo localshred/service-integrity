@@ -9,36 +9,36 @@ import {
   verifyServiceIntegrity
 } from '../src/verify-service-integrity'
 
-const resolveToState = (
-  status: ServiceState,
-  message?: string
-): Bluebird<IServiceState> => Bluebird.resolve({ status, message })
+const buildState = (status: ServiceState, message?: string): IServiceState => ({
+  message,
+  status
+})
 
 describe('src/verify-service-integrity', () => {
   describe('selectOverallStatus', () => {
     it('returns an overall OK if every service is in the OK state', () => {
       const overallStatus = selectOverallStatus({
-        disk: { status: 'OK' as ServiceState },
-        elasticsearch: { status: 'OK' as ServiceState },
-        memory: { status: 'OK' as ServiceState },
-        mysql: { status: 'OK' as ServiceState }
+        disk: buildState('OK'),
+        elasticsearch: buildState('OK'),
+        memory: buildState('OK'),
+        mysql: buildState('OK')
       })
       expect(overallStatus).toEqual('OK')
     })
 
     it('returns an overall WARN if at least one service is in the WARN state', () => {
       const overallStatus = selectOverallStatus({
-        elasticsearch: { status: 'WARN' as ServiceState },
-        mysql: { status: 'OK' as ServiceState }
+        elasticsearch: buildState('WARN'),
+        mysql: buildState('OK')
       })
       expect(overallStatus).toEqual('WARN')
     })
 
     it('returns an overall ERROR if at least one service is in the ERROR state', () => {
       const overallStatus = selectOverallStatus({
-        elasticsearch: { status: 'WARN' as ServiceState },
-        memcached: { status: 'ERROR' as ServiceState },
-        mysql: { status: 'OK' as ServiceState }
+        elasticsearch: buildState('WARN'),
+        memcached: buildState('ERROR'),
+        mysql: buildState('OK')
       })
       expect(overallStatus).toEqual('ERROR')
     })
@@ -48,9 +48,9 @@ describe('src/verify-service-integrity', () => {
     it('resolves all service statuses and produces an overallStatus', () =>
       verifyServiceIntegrity({
         services: {
-          elasticsearch: resolveToState('WARN'),
-          memcached: resolveToState('ERROR'),
-          mysql: resolveToState('OK')
+          elasticsearch: Bluebird.resolve(buildState('WARN')),
+          memcached: Bluebird.resolve(buildState('ERROR')),
+          mysql: Bluebird.resolve(buildState('OK'))
         }
       }).then((result: IServiceResult): void => {
         expect(result.overallStatus).toEqual('ERROR')
