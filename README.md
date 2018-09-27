@@ -12,7 +12,7 @@ What's a dependent service? Any major technology or backend that your app relies
 The heart of this package is the `createHealthCheck` function which accepts two arguments:
 
 * Your express app, ready for some `use`ing.
-* A map of services you wish to report on. The services should be keyed by a string of your choosing with the value being a resolvable promise which should return a service status object. Checkout `src/status.ts` for type signatures, or better yet just use the built-in status returning functions: `ok`, `warn`, or `error`. Each can take an optional string message which will be available in any downtime notifications helping us get to the root of the problem quicker.
+* A map of services you wish to report on. The services should be keyed by a string of your choosing with the value being a resolvable promise which should return a service status object. Checkout [src/status.ts](src/status.ts) for type signatures, or better yet just use the built-in status returning functions: `ok`, `warn`, or `error`. Each can take an optional string message which will be available in any downtime notifications helping us get to the root of the problem quicker.
 
 ## Documentation
 
