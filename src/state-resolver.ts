@@ -1,11 +1,6 @@
 import Bluebird = require('bluebird')
 import R = require('ramda')
-
-export enum ServiceState {
-  OK,
-  WARN,
-  ERROR
-}
+import { selectCriticalPriority, ServiceState } from './status'
 
 export interface IMiddlewareOptions {
   services: IUnresolvedService
@@ -34,13 +29,7 @@ export const selectOverallStatus: (
 ) => ServiceState = services =>
   R.pipe(
     R.values,
-    R.reduce(
-      (
-        overallStatus: ServiceState,
-        { status }: { status: ServiceState }
-      ): ServiceState => Math.max(overallStatus, status),
-      ServiceState.OK
-    )
+    R.reduce<IServiceState, ServiceState>(selectCriticalPriority, 'OK')
   )(services)
 
 export const configureMiddleware = (
