@@ -5,6 +5,7 @@ import { ServiceState } from '../src/status'
 import {
   IServiceResult,
   IServiceState,
+  selectOverallStatus,
   verifyServiceIntegrity
 } from '../src/verify-service-integrity'
 
@@ -14,30 +15,37 @@ const resolveToState = (
 ): Bluebird<IServiceState> => Bluebird.resolve({ status, message })
 
 describe('src/verify-service-integrity', () => {
+  describe('selectOverallStatus', () => {
+    it('returns an overall OK if every service is in the OK state', () => {
+      const overallStatus = selectOverallStatus({
+        disk: { status: 'OK' as ServiceState },
+        elasticsearch: { status: 'OK' as ServiceState },
+        memory: { status: 'OK' as ServiceState },
+        mysql: { status: 'OK' as ServiceState }
+      })
+      expect(overallStatus).toEqual('OK')
+    })
+
+    it('returns an overall WARN if at least one service is in the WARN state', () => {
+      const overallStatus = selectOverallStatus({
+        elasticsearch: { status: 'WARN' as ServiceState },
+        mysql: { status: 'OK' as ServiceState }
+      })
+      expect(overallStatus).toEqual('WARN')
+    })
+
+    it('returns an overall ERROR if at least one service is in the ERROR state', () => {
+      const overallStatus = selectOverallStatus({
+        elasticsearch: { status: 'WARN' as ServiceState },
+        memcached: { status: 'ERROR' as ServiceState },
+        mysql: { status: 'OK' as ServiceState }
+      })
+      expect(overallStatus).toEqual('ERROR')
+    })
+  })
+
   describe('verifyServiceIntegrity', () => {
-    it('resolves all services and produces an overallStatus', () =>
-      verifyServiceIntegrity({
-        services: {
-          mysql: resolveToState('OK')
-        }
-      }).then((result: IServiceResult): void => {
-        expect(result.overallStatus).toEqual('OK')
-        expect(result.services.mysql).toEqual({ status: 'OK' as ServiceState })
-      }))
-
-    it('returns an overall WARN if at least one service is in the WARN state', () =>
-      verifyServiceIntegrity({
-        services: {
-          elasticsearch: resolveToState('WARN'),
-          mysql: resolveToState('OK')
-        }
-      }).then((result: IServiceResult): void => {
-        expect(result.overallStatus).toEqual('WARN')
-        expect(result.services.mysql).toEqual({ status: 'OK' })
-        expect(result.services.elasticsearch).toEqual({ status: 'WARN' })
-      }))
-
-    it('returns an overall ERROR if at least one service is in the ERROR state', () =>
+    it('resolves all service statuses and produces an overallStatus', () =>
       verifyServiceIntegrity({
         services: {
           elasticsearch: resolveToState('WARN'),
