@@ -1,6 +1,9 @@
 /* eslint-env jest */
 
 import Bluebird = require('bluebird')
+import fs = require('fs')
+import { validate } from 'jsonschema'
+import path = require('path')
 import { IServiceState, ServiceState } from '../src/status'
 import {
   IServiceResult,
@@ -12,6 +15,12 @@ const buildState = (status: ServiceState, message?: string): IServiceState => ({
   message,
   status
 })
+
+const SCHEMA_FILE_PATH = path.join(__dirname, '..', 'src', 'schema.json')
+const readFile = Bluebird.promisify(fs.readFile)
+const readSchemaFile = readFile(SCHEMA_FILE_PATH).then((json: Buffer): object =>
+  JSON.parse(json.toString())
+)
 
 describe('src/verify-service-integrity', () => {
   describe('selectOverallStatus', () => {
@@ -51,16 +60,18 @@ describe('src/verify-service-integrity', () => {
           memcached: Bluebird.resolve(buildState('ERROR')),
           mysql: Bluebird.resolve(buildState('OK'))
         }
-      }).then((result: IServiceResult): void => {
-        expect(result).toEqual({
-          overallStatus: 'ERROR',
-          services: {
-            elasticsearch: { status: 'WARN' },
-            memcached: { status: 'ERROR' },
-            mysql: { status: 'OK' }
-          }
+      })
+        .then((result: IServiceResult): void => {
+          expect(result).toEqual({
+            overallStatus: 'ERROR',
+            services: {
+              elasticsearch: { status: 'WARN' },
+              memcached: { status: 'ERROR' },
+              mysql: { status: 'OK' }
+            }
+          })
         })
-      }))
+        .catch(error => expect(error).toBeNull()))
 
     it('resolves all services even if one or more service rejects its promise', () =>
       verifyServiceIntegrity({
@@ -86,5 +97,32 @@ describe('src/verify-service-integrity', () => {
           })
         })
         .catch(error => expect(error).toBeNull()))
+
+    it('validates with the provided JSON schema', () => {
+      const resultPromise = verifyServiceIntegrity({
+        services: {
+          elasticsearch: Bluebird.resolve(buildState('WARN')),
+          memcached: Bluebird.reject(
+            buildState('ERROR', "Couldn't establish connection")
+          ),
+          mysql: Bluebird.resolve(buildState('OK'))
+        }
+      })
+
+      const validateResult = ({
+        result,
+        schema
+      }: {
+      result: IServiceResult
+      schema: object
+      }): void => {
+        const validationResult = validate(result, schema)
+        expect(validationResult.errors).toEqual([])
+      }
+
+      return Bluebird.props({ result: resultPromise, schema: readSchemaFile })
+        .then(validateResult)
+        .catch(error => expect(error).toBeNull())
+    })
   })
 })
