@@ -52,10 +52,14 @@ describe('src/verify-service-integrity', () => {
           mysql: Bluebird.resolve(buildState('OK'))
         }
       }).then((result: IServiceResult): void => {
-        expect(result.overallStatus).toEqual('ERROR')
-        expect(result.services.elasticsearch).toEqual({ status: 'WARN' })
-        expect(result.services.memcached).toEqual({ status: 'ERROR' })
-        expect(result.services.mysql).toEqual({ status: 'OK' })
+        expect(result).toEqual({
+          overallStatus: 'ERROR',
+          services: {
+            elasticsearch: { status: 'WARN' },
+            memcached: { status: 'ERROR' },
+            mysql: { status: 'OK' }
+          }
+        })
       }))
 
     it('resolves all services even if one or more service rejects its promise', () =>
@@ -69,13 +73,17 @@ describe('src/verify-service-integrity', () => {
         }
       })
         .then((result: IServiceResult): void => {
-          expect(result.overallStatus).toEqual('ERROR')
-          expect(result.services.elasticsearch).toEqual({ status: 'WARN' })
-          expect(result.services.memcached).toEqual({
-            message: "Couldn't establish connection",
-            status: 'ERROR'
+          expect(result).toEqual({
+            overallStatus: 'ERROR',
+            services: {
+              elasticsearch: { status: 'WARN' },
+              memcached: {
+                message: "Couldn't establish connection",
+                status: 'ERROR'
+              },
+              mysql: { status: 'OK' }
+            }
           })
-          expect(result.services.mysql).toEqual({ status: 'OK' })
         })
         .catch(error => expect(error).toBeNull()))
   })
