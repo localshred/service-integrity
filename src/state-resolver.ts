@@ -15,17 +15,17 @@ export interface IUnresolvedService {
   [serviceName: string]: Bluebird<IServiceState>
 }
 
-export interface IResolvedService {
+export interface IResolvedServices {
   [serviceName: string]: IServiceState
 }
 
 export interface IServiceResult {
   overallStatus: ServiceState
-  services: IResolvedService
+  services: IResolvedServices
 }
 
 export const selectOverallStatus: (
-  services: IResolvedService
+  services: IResolvedServices
 ) => ServiceState = services =>
   R.pipe(
     R.values,
@@ -36,8 +36,9 @@ export const configureMiddleware = (
   options: IMiddlewareOptions
 ): Bluebird<IServiceResult> =>
   Bluebird.props(options.services).then(
-    (services: IResolvedService): IServiceResult => ({
-      overallStatus: selectOverallStatus(services),
-      services
-    })
+    (services: IResolvedServices): IServiceResult =>
+      R.applySpec<IServiceResult>({
+        overallStatus: selectOverallStatus,
+        services: R.identity
+      })(services)
   )
