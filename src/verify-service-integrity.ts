@@ -32,13 +32,15 @@ export const selectOverallStatus: (
     R.reduce<IServiceState, ServiceState>(selectCriticalPriority, 'OK')
   )(services)
 
+export const processResolvedServices: (
+  services: IResolvedServices
+) => IServiceResult = services =>
+  R.applySpec<IServiceResult>({
+    overallStatus: selectOverallStatus,
+    services: R.identity
+  })(services)
+
 export const verifyServiceIntegrity = (
   options: IMiddlewareOptions
 ): Bluebird<IServiceResult> =>
-  Bluebird.props(options.services).then(
-    (services: IResolvedServices): IServiceResult =>
-      R.applySpec<IServiceResult>({
-        overallStatus: selectOverallStatus,
-        services: R.identity
-      })(services)
-  )
+  Bluebird.props(options.services).then(processResolvedServices)
