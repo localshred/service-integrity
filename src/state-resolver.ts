@@ -32,7 +32,7 @@ export const selectOverallStatus: (
     R.reduce<IServiceState, ServiceState>(selectCriticalPriority, 'OK')
   )(services)
 
-export const configureMiddleware = (
+export const resolveState = (
   options: IMiddlewareOptions
 ): Bluebird<IServiceResult> =>
   Bluebird.props(options.services).then(

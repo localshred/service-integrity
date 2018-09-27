@@ -2,9 +2,9 @@
 
 import Bluebird = require('bluebird')
 import {
-  configureMiddleware,
   IServiceResult,
-  IServiceState
+  IServiceState,
+  resolveState
 } from '../src/state-resolver'
 import { ServiceState } from '../src/status'
 
@@ -14,9 +14,9 @@ const resolveToState = (
 ): Bluebird<IServiceState> => Bluebird.resolve({ status, message })
 
 describe('src/state-resolver', () => {
-  describe('src/configureMiddleware', () => {
+  describe('src/resolveState', () => {
     it('resolves all services and produces an overallStatus', () =>
-      configureMiddleware({
+      resolveState({
         services: {
           mysql: resolveToState('OK')
         }
@@ -26,7 +26,7 @@ describe('src/state-resolver', () => {
       }))
 
     it('returns an overall WARN if at least one service is in the WARN state', () =>
-      configureMiddleware({
+      resolveState({
         services: {
           elasticsearch: resolveToState('WARN'),
           mysql: resolveToState('OK')
@@ -38,7 +38,7 @@ describe('src/state-resolver', () => {
       }))
 
     it('returns an overall ERROR if at least one service is in the ERROR state', () =>
-      configureMiddleware({
+      resolveState({
         services: {
           elasticsearch: resolveToState('WARN'),
           memcached: resolveToState('ERROR'),
