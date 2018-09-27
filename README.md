@@ -24,12 +24,12 @@ const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = () =>
   Promise.resolve(new Sequelize(...connectionParams))
-    .then(sequelize => sequelize.query('SELECT count(id) FROM mytable'))
+    .then(sequelize => sequelize.query("SELECT count(id) FROM mytable"))
     .then(result => {
       if (result.count > 0) {
         return ok() // Report that everything with MySQL is OK
       }
-      return warn('Expected some rows but didn't get any') // Report a potential issue with MySQL
+      return warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
     })
     .catch(e => error(e.message)) // Report MySQL is down
 
