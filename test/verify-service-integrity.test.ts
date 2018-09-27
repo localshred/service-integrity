@@ -1,22 +1,22 @@
 /* eslint-env jest */
 
 import Bluebird = require('bluebird')
+import { ServiceState } from '../src/status'
 import {
   IServiceResult,
   IServiceState,
-  resolveState
-} from '../src/state-resolver'
-import { ServiceState } from '../src/status'
+  verifyServiceIntegrity
+} from '../src/verify-service-integrity'
 
 const resolveToState = (
   status: ServiceState,
   message?: string
 ): Bluebird<IServiceState> => Bluebird.resolve({ status, message })
 
-describe('src/state-resolver', () => {
-  describe('src/resolveState', () => {
+describe('src/verify-service-integrity', () => {
+  describe('verifyServiceIntegrity', () => {
     it('resolves all services and produces an overallStatus', () =>
-      resolveState({
+      verifyServiceIntegrity({
         services: {
           mysql: resolveToState('OK')
         }
@@ -26,7 +26,7 @@ describe('src/state-resolver', () => {
       }))
 
     it('returns an overall WARN if at least one service is in the WARN state', () =>
-      resolveState({
+      verifyServiceIntegrity({
         services: {
           elasticsearch: resolveToState('WARN'),
           mysql: resolveToState('OK')
@@ -38,7 +38,7 @@ describe('src/state-resolver', () => {
       }))
 
     it('returns an overall ERROR if at least one service is in the ERROR state', () =>
-      resolveState({
+      verifyServiceIntegrity({
         services: {
           elasticsearch: resolveToState('WARN'),
           memcached: resolveToState('ERROR'),
