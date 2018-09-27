@@ -33,7 +33,7 @@ const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = () =>
   Promise.resolve(new Sequelize(...connectionParams))
-    .then(sequelize => sequelize.query('SELECT count(id) FROM mytable'))
+    .then(connection => connection.query('SELECT count(id) FROM mytable'))
     .then(result => {
       if (result.count > 0) {
         return report.ok() // Report that everything with MySQL is OK
@@ -62,7 +62,7 @@ const Sequelize = require('sequelize')
 const verifyMysqlIntegrity = async () => {
   const connection = new Sequelize(...connectionParams))
   try {
-    const result = await sequelize.query('SELECT count(id) FROM mytable'))
+    const result = await connection.query('SELECT count(id) FROM mytable'))
     if (result.count > 0) {
       return report.ok() // Report that everything with MySQL is OK
     }
