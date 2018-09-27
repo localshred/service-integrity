@@ -51,3 +51,33 @@ createHealthCheck(app, {
   // ... add any other checks you want
 })
 ```
+
+Or use async/await if that's your preference:
+
+```javascript
+const express = require('express')
+const { createHealthCheck, report } = require('@kuali/a-few-good-deps')
+const Sequelize = require('sequelize')
+
+const verifyMysqlIntegrity = async () => {
+  const connection = new Sequelize(...connectionParams))
+  try {
+    const result = await sequelize.query('SELECT count(id) FROM mytable'))
+    if (result.count > 0) {
+      return report.ok() // Report that everything with MySQL is OK
+    }
+    return report.warn("Expected some rows but didn't get any") // Report a potential issue with MySQL
+  } catch (error) {
+    return report.error(error.message)) // Report MySQL is down
+  }
+}
+
+const app = express()
+
+// The following function will register a GET endpoint at /health/integrity which returns a JSON
+// response corresponding to the payload Schema described in the linked documentation.
+createHealthCheck(app, {
+  mysql: verifyMysqlIntegrity()
+  // ... add any other checks you want
+})
+```
