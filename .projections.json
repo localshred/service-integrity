@@ -6,12 +6,14 @@
 
   "src/*.ts": {
     "alternate": "test/{}.test.ts",
+    "make": "yarn tsc --declaration {file}",
+    "dispatch": "yarn tsc --declaration {file}",
     "type": "src"
   },
 
-  "test/unit/*.test.js": {
+  "test/*.test.ts": {
     "type": "test",
-    "alternate": "{}.js",
+    "alternate": "src/{}.ts",
     "make": "yarn jest --no-color {file}",
     "dispatch": "yarn jest --no-color {file}",
     "template": [
@@ -29,4 +31,3 @@
     ]
   }
 }
-
