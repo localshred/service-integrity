@@ -1,14 +1,16 @@
 import R = require('ramda')
 
 export type ServiceState = 'OK' | 'WARN' | 'ERROR'
+
 export type ServiceStatePriority = 100 | 200 | 300
+
 export type PriorityToServiceStateLookup = {
   [k in ServiceState]: ServiceStatePriority
 }
 
 export interface IServiceState {
-  status: ServiceState
   message?: string
+  status: ServiceState
 }
 
 export const SERVICE_STATE_TO_PRIORITY: PriorityToServiceStateLookup = {
@@ -17,13 +19,11 @@ export const SERVICE_STATE_TO_PRIORITY: PriorityToServiceStateLookup = {
   WARN: 200
 }
 
-const priorityToServiceState = (priority: ServiceStatePriority): ServiceState =>
-  R.cond([
-    [R.equals(SERVICE_STATE_TO_PRIORITY.OK), R.always('OK')],
-    [R.equals(SERVICE_STATE_TO_PRIORITY.ERROR), R.always('ERROR')],
-    [R.equals(SERVICE_STATE_TO_PRIORITY.WARN), R.always('WARN')],
-    [R.T, R.always('ERROR')]
-  ])(priority)
+export const PRIORITY_TO_SERVICE_STATE = {
+  [SERVICE_STATE_TO_PRIORITY.ERROR]: 'ERROR',
+  [SERVICE_STATE_TO_PRIORITY.OK]: 'OK',
+  [SERVICE_STATE_TO_PRIORITY.WARN]: 'WARN'
+}
 
 export const selectCriticalPriority = (
   overallStatus: ServiceState,
@@ -31,8 +31,11 @@ export const selectCriticalPriority = (
 ): ServiceState => {
   const overallStatusPriority = R.prop(overallStatus, SERVICE_STATE_TO_PRIORITY)
   const statusPriority = R.prop(status, SERVICE_STATE_TO_PRIORITY)
-  const maxPriority = Math.max(overallStatusPriority, statusPriority)
-  return priorityToServiceState(maxPriority as ServiceStatePriority)
+  const maxPriority = Math.max(
+    overallStatusPriority,
+    statusPriority
+  ) as ServiceStatePriority
+  return PRIORITY_TO_SERVICE_STATE[maxPriority] as ServiceState
 }
 
 export const error = (message?: string): IServiceState => ({
