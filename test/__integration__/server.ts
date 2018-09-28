@@ -3,9 +3,10 @@ import { createHealthCheck } from '../../src/index'
 import { IUnresolvedServices } from '../../src/verify-service-integrity'
 
 export const createTestApp = (
-  services: IUnresolvedServices
+  services: IUnresolvedServices,
+  middleware?: express.RequestHandler[]
 ): express.Application => {
   const app = express()
-  createHealthCheck(app, services)
+  createHealthCheck(app, services, { middleware })
   return app
 }

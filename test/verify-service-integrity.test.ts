@@ -4,6 +4,7 @@ import Bluebird = require('bluebird')
 import fs = require('fs')
 import { validate } from 'jsonschema'
 import path = require('path')
+import R = require('ramda')
 import { IServiceState, ServiceState } from '../src/status'
 import {
   IServiceResult,
@@ -54,13 +55,15 @@ describe('src/verify-service-integrity', () => {
 
   describe('verifyServiceIntegrity', () => {
     it('resolves all service statuses and produces an overallStatus', () =>
-      verifyServiceIntegrity({
-        services: {
-          elasticsearch: Bluebird.resolve(buildState('WARN')),
-          memcached: Bluebird.resolve(buildState('ERROR')),
-          mysql: Bluebird.resolve(buildState('OK'))
+      verifyServiceIntegrity(
+        {},
+        {},
+        {
+          elasticsearch: R.always(Bluebird.resolve(buildState('WARN'))),
+          memcached: R.always(Bluebird.resolve(buildState('ERROR'))),
+          mysql: R.always(Bluebird.resolve(buildState('OK')))
         }
-      })
+      )
         .then((result: IServiceResult): void => {
           expect(result).toEqual({
             overallStatus: 'ERROR',
@@ -71,18 +74,24 @@ describe('src/verify-service-integrity', () => {
             }
           })
         })
-        .catch(error => expect(error).toBeNull()))
+        .catch((error: Error): void => {
+          expect(error).toBeNull()
+        }))
 
     it('resolves all services even if one or more service rejects its promise', () =>
-      verifyServiceIntegrity({
-        services: {
-          elasticsearch: Bluebird.resolve(buildState('WARN')),
-          memcached: Bluebird.reject(
-            buildState('ERROR', "Couldn't establish connection")
+      verifyServiceIntegrity(
+        {},
+        {},
+        {
+          elasticsearch: R.always(Bluebird.resolve(buildState('WARN'))),
+          memcached: R.always(
+            Bluebird.reject(
+              buildState('ERROR', "Couldn't establish connection")
+            )
           ),
-          mysql: Bluebird.resolve(buildState('OK'))
+          mysql: R.always(Bluebird.resolve(buildState('OK')))
         }
-      })
+      )
         .then((result: IServiceResult): void => {
           expect(result).toEqual({
             overallStatus: 'ERROR',
@@ -96,18 +105,24 @@ describe('src/verify-service-integrity', () => {
             }
           })
         })
-        .catch(error => expect(error).toBeNull()))
+        .catch((error: Error): void => {
+          expect(error).toBeNull()
+        }))
 
     it('validates with the provided JSON schema', () => {
-      const resultPromise = verifyServiceIntegrity({
-        services: {
-          elasticsearch: Bluebird.resolve(buildState('WARN')),
-          memcached: Bluebird.reject(
-            buildState('ERROR', "Couldn't establish connection")
+      const resultPromise = verifyServiceIntegrity(
+        {},
+        {},
+        {
+          elasticsearch: R.always(Bluebird.resolve(buildState('WARN'))),
+          memcached: R.always(
+            Bluebird.reject(
+              buildState('ERROR', "Couldn't establish connection")
+            )
           ),
-          mysql: Bluebird.resolve(buildState('OK'))
+          mysql: R.always(Bluebird.resolve(buildState('OK')))
         }
-      })
+      )
 
       const validateResult = ({
         result,
@@ -122,7 +137,9 @@ describe('src/verify-service-integrity', () => {
 
       return Bluebird.props({ result: resultPromise, schema: readSchemaFile })
         .then(validateResult)
-        .catch(error => expect(error).toBeNull())
+        .catch((error: Error): void => {
+          expect(error).toBeNull()
+        })
     })
   })
 })

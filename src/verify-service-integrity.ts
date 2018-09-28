@@ -7,12 +7,8 @@ import {
   ServiceState
 } from './status'
 
-export interface IMiddlewareOptions {
-  services: IUnresolvedServices
-}
-
 export interface IUnresolvedServices {
-  [serviceName: string]: Bluebird<IServiceState>
+  [serviceName: string]: (req: object, res: object) => Bluebird<IServiceState>
 }
 
 export interface IResolvedServices {
@@ -48,21 +44,36 @@ const mergeProp = R.curry(
   ): IResolvedServices => R.assoc(serviceName, serviceStatus, services)
 )
 
-export const resolveServicePromiseReducer = (
-  services: IResolvedServices,
-  [serviceName, servicePromise]: [string, Bluebird<IServiceState>]
-): Bluebird<IResolvedServices> =>
-  servicePromise
-    .then(R.identity)
-    .catch(exceptionToErrorStatus)
-    .then(mergeProp(services, serviceName))
+export const resolveServicePromiseReducer = R.curry(
+  (
+    req: object,
+    res: object,
+    services: IResolvedServices,
+    [serviceName, servicePromise]: [
+    string,
+    (req: object, res: object) => Bluebird<IServiceState>
+    ]
+  ): Bluebird<IResolvedServices> =>
+    servicePromise(req, res)
+      .then(R.identity)
+      .catch(exceptionToErrorStatus)
+      .then(mergeProp(services, serviceName))
+)
 
 export const wrappedProps = (
+  req: object,
+  res: object,
   services: IUnresolvedServices
 ): Bluebird<IResolvedServices> =>
-  Bluebird.reduce(R.toPairs(services), resolveServicePromiseReducer, {})
+  Bluebird.reduce(
+    R.toPairs(services),
+    resolveServicePromiseReducer(req, res),
+    {}
+  )
 
 export const verifyServiceIntegrity = (
-  options: IMiddlewareOptions
+  req: object,
+  res: object,
+  services: IUnresolvedServices
 ): Bluebird<IServiceResult> =>
-  wrappedProps(options.services).then(processResolvedServices)
+  wrappedProps(req, res, services).then(processResolvedServices)
