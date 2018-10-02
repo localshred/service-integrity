@@ -68,7 +68,7 @@ Or use async/await if that's your preference:
 
 ```javascript
 const express = require('express')
-const { createHealthCheck, report } = require('service-integrity')
+const { createHealthCheck, status } = require('service-integrity')
 const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = async (req, res) => {
