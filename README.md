@@ -1,10 +1,8 @@
-# A Few Good Deps
-
-> You can't handle the truth!
+# Service Integrity
 
 ## Description and Rationale
 
-This package provides a drop-in set of functions that provide your production-ready Kuali app
+This package provides a drop-in set of functions that provide your production-ready app
 with some much needed uptime integrity checking of dependent services. This endpoint will be checked
 by upstream uptime integrity tools managed by the ops team. The data will eventually be available
 to see our uptime metrics.
@@ -12,7 +10,7 @@ to see our uptime metrics.
 What's a dependent service? Any major technology or backend that your app relies on to function
 correctly. Think databases, caches, hardware limits (e.g. disk or memory), and even potentially
 other application services (e.g. core auth, s3, etc). Be careful pinging other services though,
-you may just end up causing a cascading failure across all kuali products if not done carefully.
+you may just end up causing a cascading failure across all your products if not done carefully.
 
 The heart of this package is the `createHealthCheck` function which accepts two arguments:
 
@@ -26,20 +24,20 @@ The heart of this package is the `createHealthCheck` function which accepts two 
 
 ## Documentation
 
-Read the [integrity health check specification](https://wiki.kuali.co/dev/integrity_health_check)
+Read the [integrity health check specification](https://github.com/localshred/service-integrity/wiki)
 to learn more.
 
 ## Installation
 
 ```shell
-yarn add @kuali/a-few-good-deps
+yarn add service-integrity
 ```
 
 ## Usage
 
 ```javascript
 const express = require('express')
-const { createHealthCheck, status } = require('@kuali/a-few-good-deps')
+const { createHealthCheck, status } = require('service-integrity')
 const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = (req, res) =>
@@ -70,7 +68,7 @@ Or use async/await if that's your preference:
 
 ```javascript
 const express = require('express')
-const { createHealthCheck, report } = require('@kuali/a-few-good-deps')
+const { createHealthCheck, report } = require('service-integrity')
 const Sequelize = require('sequelize')
 
 const verifyMysqlIntegrity = async (req, res) => {
