@@ -1,10 +1,10 @@
 {
   "name": "service-integrity",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description":
     "Provides an express middleware to setup a health integrity check endpoint according to spec",
-  "main": "src/index.js",
-  "types": "lib/a-few-good-deps.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "repository": "https://github.com/localshred/service-integrity",
   "author": "BJ Neilsen <bj.neilsen@gmail.com>",
   "license": "MIT",
