@@ -8,7 +8,6 @@
   "repository": "https://github.com/localshred/service-integrity",
   "author": "BJ Neilsen <bj.neilsen@gmail.com>",
   "license": "MIT",
-  "private": true,
   "files": ["lib"],
   "devDependencies": {
     "@types/bluebird": "^3.5.24",
